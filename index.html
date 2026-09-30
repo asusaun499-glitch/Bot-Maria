@@ -58,18 +58,23 @@
 
     <div class="w-full max-w-2xl bg-discord-dark rounded-xl shadow-2xl overflow-hidden">
         <!-- Header -->
-        <div class="bg-discord-darker px-6 py-4 border-b border-gray-700 flex items-center gap-3">
-            <div class="w-10 h-10 bg-discord-blurple rounded-full flex items-center justify-center text-white shadow-lg overflow-hidden">
-                <i class="fa-solid fa-robot text-xl"></i>
-            </div>
-            <div>
-                <h1 class="text-xl font-semibold text-white">Support Maria - Sender</h1>
-                <p class="text-xs text-gray-400">ระบบส่งข้อความบอทประจำเมือง (ล็อกโปรไฟล์แล้ว)</p>
+        <div class="bg-discord-darker px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-discord-blurple rounded-full flex items-center justify-center text-white shadow-lg overflow-hidden border border-discord-blurple">
+                    <i class="fa-solid fa-robot text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-semibold text-white flex items-center gap-2">
+                        Support Maria - Sender
+                        <span class="text-xs px-2 py-0.5 bg-discord-blurple/20 text-discord-blurple border border-discord-blurple/30 rounded-full font-normal">Forum Ready</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">ระบบส่งข้อความบอทประจำเมือง (รองรับทั้งช่องปกติและฟอรัม)</p>
+                </div>
             </div>
         </div>
 
         <!-- Form Content -->
-        <div class="p-6 space-y-6">
+        <div class="p-6 space-y-5">
             <!-- Webhook URL -->
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1">Discord Webhook URL <span class="text-red-400">*</span></label>
@@ -77,27 +82,57 @@
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
                         <i class="fa-solid fa-link"></i>
                     </span>
-                    <input type="password" id="webhookUrl" placeholder="วาง URL ที่คัดลอกมาจาก Discord ที่นี่..." 
+                    <input type="password" id="webhookUrl" placeholder="วาง URL ที่คัดลอกมาจาก Discord..." 
                         class="w-full pl-10 pr-10 py-2.5 bg-discord-darkest border border-gray-600 rounded-lg focus:outline-none focus:border-discord-blurple focus:ring-1 focus:ring-discord-blurple text-sm transition-colors">
                     <button id="toggleUrlBtn" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-white transition-colors">
                         <i class="fa-solid fa-eye" id="toggleUrlIcon"></i>
                     </button>
                 </div>
-                <p class="text-xs text-gray-400 mt-2"><i class="fa-solid fa-circle-info text-discord-blurple mr-1"></i> นำ URL จากปุ่ม <b>"คัดลอก URL เว็บฮุก"</b> จากบอท Support Maria มาวางที่นี่ (ระบบจะจำไว้ในเครื่อง)</p>
+            <!-- Message Mode / Target Selection -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">รูปแบบการส่งข้อความ</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="modeNormalBtn" class="py-2.5 px-3 rounded-lg text-xs md:text-sm font-medium border border-discord-blurple bg-discord-blurple text-white flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-hashtag"></i> ช่องปกติ / สร้างกระทู้
+                    </button>
+                    <button type="button" id="modeThreadBtn" class="py-2.5 px-3 rounded-lg text-xs md:text-sm font-medium border border-gray-600 bg-discord-darkest text-gray-400 hover:text-white hover:border-gray-500 flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-comments"></i> ตอบกลับกระทู้เดิม (Forum)
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-4">
-                <!-- Username (Locked) -->
+            <!-- Forum New Thread Name (Visible in Normal Mode if posting to Forum) -->
+            <div id="threadNameContainer">
+                <label class="block text-sm font-medium text-gray-300 mb-1">ชื่อหัวข้อกระทู้ <span class="text-xs text-gray-400 font-normal">(ใส่เฉพาะกรณีส่งเข้าช่องฟอรัมเพื่อสร้างกระทู้ใหม่)</span></label>
+                <input type="text" id="threadName" placeholder="เช่น รายงานความประพฤติประจำวัน..." 
+                    class="w-full px-4 py-2.5 bg-discord-darkest border border-gray-600 rounded-lg focus:outline-none focus:border-discord-blurple focus:ring-1 focus:ring-discord-blurple text-sm transition-colors">
+            </div>
+
+            <!-- Thread ID Input & Quick Select Presets (Visible in Thread Mode) -->
+            <div id="threadIdContainer" class="hidden space-y-3">
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">ชื่อที่แสดง (Username)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-                            <i class="fa-solid fa-user-lock"></i>
-                        </span>
-                        <input type="text" id="username" value="Support Maria" readonly 
-                            class="w-full pl-10 px-3 py-2.5 bg-gray-700 border border-gray-600 text-gray-300 rounded-lg focus:outline-none text-sm cursor-not-allowed opacity-80">
+                    <label class="block text-sm font-medium text-gray-300 mb-1">ID หรือ ลิงก์กระทู้ที่ต้องการตอบกลับ <span class="text-red-400">*</span></label>
+                    <div class="flex gap-2">
+                        <input type="text" id="threadId" placeholder="วางลิงก์กระทู้ Discord หรือ ID กระทู้ที่นี่..." 
+                            class="w-full px-4 py-2.5 bg-discord-darkest border border-gray-600 rounded-lg focus:outline-none focus:border-discord-blurple focus:ring-1 focus:ring-discord-blurple text-sm transition-colors">
+                        <button type="button" id="saveThreadBtn" title="บันทึกกระทู้นี้เก็บไว้เลือกวันหลัง" class="px-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-xs flex items-center gap-1 transition-colors whitespace-nowrap">
+                            <i class="fa-solid fa-bookmark text-yellow-400"></i> บันทึกด่วน
+                        </button>
                     </div>
-                    <p class="text-xs text-green-400 mt-1"><i class="fa-solid fa-check mr-1"></i> ล็อกรูปโปรไฟล์ (Maria City) และชื่ออัตโนมัติตามที่ตั้งค่าใน Discord แล้ว</p>
+                    <p class="text-xs text-gray-400 mt-1"><i class="fa-solid fa-circle-info text-discord-blurple mr-1"></i> สามารถคลิกขวาที่กระทู้ใน Discord แล้วเลือก <b>"คัดลอกลิงก์กระทู้"</b> มาวางได้เลย</p>
+                </div>
+
+                <!-- Quick Select Saved Threads -->
+                <div class="bg-discord-darkest p-3 rounded-lg border border-gray-700">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-medium text-gray-300 flex items-center gap-1">
+                            <i class="fa-solid fa-list-check text-discord-blurple"></i> คลิกเลือกกระทู้ที่บันทึกไว้:
+                        </span>
+                        <span id="savedCountText" class="text-[10px] text-gray-500">0 กระทู้</span>
+                    </div>
+                    <div id="threadPresetsList" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                        <p id="emptyPresetMsg" class="text-xs text-gray-500 italic py-1">ยังไม่มีกระทู้ที่บันทึกไว้ กดปุ่ม "บันทึกด่วน" ด้านบนเพื่อเพิ่มได้ครับ</p>
+                    </div>
                 </div>
             </div>
 
@@ -111,9 +146,9 @@
             <!-- File Upload -->
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1">แนบรูปภาพ (ทางเลือก)</label>
-                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-600 border-dashed rounded-lg hover:border-discord-blurple transition-colors bg-discord-darkest cursor-pointer" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <div class="mt-1 flex justify-center px-6 pt-4 pb-4 border-2 border-gray-600 border-dashed rounded-lg hover:border-discord-blurple transition-colors bg-discord-darkest cursor-pointer" id="dropZone" onclick="document.getElementById('fileInput').click()">
                     <div class="space-y-1 text-center" id="uploadContent">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                        <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-400 mb-1"></i>
                         <div class="flex text-sm text-gray-400 justify-center">
                             <span class="relative font-medium text-discord-blurple hover:text-indigo-400 focus-within:outline-none">
                                 <span>คลิกเพื่ออัปโหลด</span>
@@ -125,7 +160,7 @@
                     </div>
                     <!-- Image Preview -->
                     <div id="imagePreviewContainer" class="hidden relative w-full flex-col items-center">
-                        <img id="imagePreview" src="" alt="Preview" class="max-h-40 rounded-lg object-contain">
+                        <img id="imagePreview" src="" alt="Preview" class="max-h-36 rounded-lg object-contain">
                         <button type="button" id="removeFileBtn" class="mt-2 text-sm text-red-400 hover:text-red-300 flex items-center gap-1" onclick="event.stopPropagation(); removeFile();">
                             <i class="fa-solid fa-trash"></i> ลบรูปภาพ
                         </button>
@@ -158,15 +193,146 @@
         const sendBtn = document.getElementById('sendBtn');
         const toastContainer = document.getElementById('toastContainer');
 
+        // Forum elements
+        const modeNormalBtn = document.getElementById('modeNormalBtn');
+        const modeThreadBtn = document.getElementById('modeThreadBtn');
+        const threadNameContainer = document.getElementById('threadNameContainer');
+        const threadNameInput = document.getElementById('threadName');
+        const threadIdContainer = document.getElementById('threadIdContainer');
+        const threadIdInput = document.getElementById('threadId');
+        const saveThreadBtn = document.getElementById('saveThreadBtn');
+        const threadPresetsList = document.getElementById('threadPresetsList');
+        const emptyPresetMsg = document.getElementById('emptyPresetMsg');
+        const savedCountText = document.getElementById('savedCountText');
+
         let selectedFile = null;
+        let isThreadMode = false;
+        let savedThreads = [];
 
         // --- Load Saved Data ---
         window.addEventListener('DOMContentLoaded', () => {
             if(localStorage.getItem('webhookUrl')) webhookUrlInput.value = localStorage.getItem('webhookUrl');
+            
+            // Load saved threads
+            const storedThreads = localStorage.getItem('savedThreads');
+            if (storedThreads) {
+                try {
+                    savedThreads = JSON.parse(storedThreads);
+                    renderThreadPresets();
+                } catch(e) {
+                    savedThreads = [];
+                }
+            }
         });
 
         // --- Save Data on Input ---
         webhookUrlInput.addEventListener('input', (e) => localStorage.setItem('webhookUrl', e.target.value));
+
+        // --- Mode Switching ---
+        modeNormalBtn.addEventListener('click', () => {
+            isThreadMode = false;
+            modeNormalBtn.className = "py-2.5 px-3 rounded-lg text-xs md:text-sm font-medium border border-discord-blurple bg-discord-blurple text-white flex items-center justify-center gap-2 transition-all";
+            modeThreadBtn.className = "py-2.5 px-3 rounded-lg text-xs md:text-sm font-medium border border-gray-600 bg-discord-darkest text-gray-400 hover:text-white hover:border-gray-500 flex items-center justify-center gap-2 transition-all";
+            threadNameContainer.classList.remove('hidden');
+            threadIdContainer.classList.add('hidden');
+        });
+
+        modeThreadBtn.addEventListener('click', () => {
+            isThreadMode = true;
+            modeThreadBtn.className = "py-2.5 px-3 rounded-lg text-xs md:text-sm font-medium border border-discord-blurple bg-discord-blurple text-white flex items-center justify-center gap-2 transition-all";
+            modeNormalBtn.className = "py-2.5 px-3 rounded-lg text-xs md:text-sm font-medium border border-gray-600 bg-discord-darkest text-gray-400 hover:text-white hover:border-gray-500 flex items-center justify-center gap-2 transition-all";
+            threadNameContainer.classList.add('hidden');
+            threadIdContainer.classList.remove('hidden');
+        });
+
+        // --- Saved Threads Logic ---
+        saveThreadBtn.addEventListener('click', () => {
+            const val = threadIdInput.value.trim();
+            if (!val) {
+                showToast('กรุณากรอกลิงก์หรือ ID กระทู้ก่อนกดบันทึก', 'error');
+                return;
+            }
+
+            const cleanId = extractThreadId(val);
+            if (!cleanId) {
+                showToast('รูปแบบ ID หรือ ลิงก์กระทู้ไม่ถูกต้อง', 'error');
+                return;
+            }
+
+            const namePrompt = prompt('ตั้งชื่อเรียกกระทู้นี้ (เช่น กระทู้รายงาน 1, กระทู้แจ้งความ):', `กระทู้ ${cleanId.substring(0, 6)}...`);
+            if (namePrompt === null) return; // User cancelled
+            const title = namePrompt.trim() || `กระทู้ ${cleanId}`;
+
+            // Prevent duplicate IDs
+            const existingIdx = savedThreads.findIndex(t => t.id === cleanId);
+            if (existingIdx !== -1) {
+                savedThreads[existingIdx].name = title; // Update title
+            } else {
+                savedThreads.push({ id: cleanId, name: title });
+            }
+
+            localStorage.setItem('savedThreads', JSON.stringify(savedThreads));
+            renderThreadPresets();
+            showToast('บันทึกกระทู้เรียบร้อยแล้ว!', 'success');
+        });
+
+        function renderThreadPresets() {
+            threadPresetsList.innerHTML = '';
+            savedCountText.textContent = `${savedThreads.length} กระทู้`;
+
+            if (savedThreads.length === 0) {
+                threadPresetsList.appendChild(emptyPresetMsg);
+                return;
+            }
+
+            savedThreads.forEach((thread, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'group flex items-center gap-1.5 px-2.5 py-1 bg-gray-700 hover:bg-discord-blurple text-xs text-gray-200 hover:text-white rounded-md transition-all cursor-pointer border border-gray-600 hover:border-discord-blurple';
+                
+                chip.innerHTML = `
+                    <span class="select-thread-btn flex items-center gap-1">
+                        <i class="fa-solid fa-hashtag text-[10px] text-gray-400 group-hover:text-white"></i>
+                        <span>${escapeHtml(thread.name)}</span>
+                    </span>
+                    <button type="button" class="delete-thread-btn text-gray-400 hover:text-red-300 ml-1 p-0.5" title="ลบรายการนี้">
+                        <i class="fa-solid fa-xmark text-[11px]"></i>
+                    </button>
+                `;
+
+                // Select thread click
+                chip.querySelector('.select-thread-btn').addEventListener('click', () => {
+                    threadIdInput.value = thread.id;
+                    showToast(`เลือก: ${thread.name}`, 'success');
+                });
+
+                // Delete thread click
+                chip.querySelector('.delete-thread-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    savedThreads.splice(index, 1);
+                    localStorage.setItem('savedThreads', JSON.stringify(savedThreads));
+                    renderThreadPresets();
+                    showToast('ลบกระทู้ที่บันทึกไว้แล้ว', 'success');
+                });
+
+                threadPresetsList.appendChild(chip);
+            });
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Helper to extract Thread ID from Discord URL or plain ID
+        function extractThreadId(input) {
+            if (!input) return null;
+            input = input.trim();
+            // Match pure digits
+            if (/^\d+$/.test(input)) return input;
+            // Match Discord channel/thread link format: https://discord.com/channels/guild_id/thread_id or /channel_id/message_id
+            const matches = input.match(/\/(\d+)\/?$/);
+            if (matches && matches[1]) return matches[1];
+            return input;
+        }
 
         // --- Toggle Webhook URL Visibility ---
         toggleUrlBtn.addEventListener('click', () => {
@@ -189,18 +355,15 @@
         // Drag and drop support
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropZone.classList.add('border-discord-blurple');
-            dropZone.classList.add('bg-discord-darker');
+            dropZone.classList.add('border-discord-blurple', 'bg-discord-darker');
         });
         dropZone.addEventListener('dragleave', (e) => {
             e.preventDefault();
-            dropZone.classList.remove('border-discord-blurple');
-            dropZone.classList.remove('bg-discord-darker');
+            dropZone.classList.remove('border-discord-blurple', 'bg-discord-darker');
         });
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.classList.remove('border-discord-blurple');
-            dropZone.classList.remove('bg-discord-darker');
+            dropZone.classList.remove('border-discord-blurple', 'bg-discord-darker');
             if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                 fileInput.files = e.dataTransfer.files;
                 handleFile(e.dataTransfer.files[0]);
@@ -213,7 +376,7 @@
                 showToast('กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น', 'error');
                 return;
             }
-            if (file.size > 8 * 1024 * 1024) { // 8MB limit for standard discord
+            if (file.size > 8 * 1024 * 1024) { // 8MB limit
                 showToast('ขนาดไฟล์ต้องไม่เกิน 8MB', 'error');
                 return;
             }
@@ -236,6 +399,22 @@
             imagePreviewContainer.classList.add('hidden');
             imagePreviewContainer.classList.remove('flex');
             uploadContent.classList.remove('hidden');
+        }
+
+        // --- Helper: Extract Thread ID from text or URL ---
+        function extractThreadId(input) {
+            if (!input) return null;
+            input = input.trim();
+            // Match Discord channel URL pattern: https://discord.com/channels/guild_id/thread_id or /thread_id/message_id
+            const urlMatch = input.match(/channels\/\d+\/(\d+)/);
+            if (urlMatch) {
+                return urlMatch[1];
+            }
+            // If it's pure numbers (ID)
+            if (/^\d+$/.test(input)) {
+                return input;
+            }
+            return null;
         }
 
         // --- Custom Toast Notification ---
@@ -262,8 +441,10 @@
 
         // --- Send Webhook Logic ---
         sendBtn.addEventListener('click', async () => {
-            const webhookUrl = webhookUrlInput.value.trim();
+            let webhookUrl = webhookUrlInput.value.trim();
             const message = messageInput.value.trim();
+            const threadName = threadNameInput.value.trim();
+            const threadIdRaw = threadIdInput.value.trim();
 
             // Validations
             if (!webhookUrl) {
@@ -271,6 +452,20 @@
                 webhookUrlInput.focus();
                 return;
             }
+
+            if (isThreadMode) {
+                if (!threadIdRaw) {
+                    showToast('กรุณากรอกหรือเลือกกระทู้ที่ต้องการตอบกลับ', 'error');
+                    threadIdInput.focus();
+                    return;
+                }
+                const threadId = extractThreadId(threadIdRaw);
+                // Append thread_id query parameter to URL for posting inside a thread
+                const urlObj = new URL(webhookUrl);
+                urlObj.searchParams.set('thread_id', threadId);
+                webhookUrl = urlObj.toString();
+            }
+
             if (!message && !selectedFile) {
                 showToast('กรุณาพิมพ์ข้อความ หรือ แนบรูปภาพอย่างน้อย 1 อย่าง', 'error');
                 messageInput.focus();
@@ -288,21 +483,20 @@
                 const formData = new FormData();
                 
                 if (message) formData.append('content', message);
-                // ข้ามการส่ง username และ avatar_url เพื่อให้ Discord ใช้รูปและชื่อที่คุณตั้งไว้ในหน้า Webhook Setting
+                if (!isThreadMode && threadName) formData.append('thread_name', threadName);
                 if (selectedFile) formData.append('file', selectedFile);
 
                 // Fetch Request to Discord API
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
                     body: formData 
-                    // Note: Do NOT set 'Content-Type' manually when using FormData.
-                    // The browser will automatically set it to 'multipart/form-data' with the correct boundary.
                 });
 
                 if (response.ok) {
                     showToast('ส่งข้อความสำเร็จ!', 'success');
-                    // Clear inputs (except settings)
+                    // Clear message inputs
                     messageInput.value = '';
+                    if (!isThreadMode) threadNameInput.value = '';
                     removeFile();
                 } else {
                     const errData = await response.json();
